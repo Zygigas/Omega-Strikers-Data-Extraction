@@ -131,3 +131,6 @@ dist
 
 # application specific config files
 configs/*.json
+
+# saved data and cached data saved in a specific scrapping run
+cache
