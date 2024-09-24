@@ -1,3 +1,22 @@
+import { ResponseHandler } from "./modules/scrapper";
+
+const testUrl = "https://stats.omegastrikers.gg/leaderboards";
+
+main();
+
+async function main() {
+  const responseHandler = new ResponseHandler();
+
+  runModule("test response getter", () =>
+    responseHandler.connectToUrl(testUrl, {
+      casheResponse: {
+        casheresponseDirectory: "./cache",
+        casheResponseFileName: "test",
+      },
+    })
+  );
+}
+
 /**
  * Runs a given function and logs the result and time taken
  * @param name The name of the module to be run
