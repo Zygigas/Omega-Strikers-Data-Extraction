@@ -11,11 +11,8 @@ async function runModule(
   const startTime = new Date();
   const result = await func();
   const endTime = new Date();
-
-  if (result === 0) {
-    console.log(`${name} completed successfully`);
-    console.log(
-      `Run time: ${(endTime.getTime() - startTime.getTime()) / 1000} seconds`
-    );
-  }
+  console.log(`${name} completed successfully`);
+  console.log(
+    `Run time: ${(endTime.getTime() - startTime.getTime()) / 1000} seconds`
+  );
 }
