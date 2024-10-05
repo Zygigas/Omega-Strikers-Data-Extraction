@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { connectOptions } from ".";
 import fs from "fs";
+import { fixLocalLinksInCashedSource } from "../fileFormating";
 
 export class ResponseHandler {
   /**
@@ -38,6 +39,13 @@ export class ResponseHandler {
     if (options?.casheResponse) {
       const directory = options?.casheResponse.casheresponseDirectory;
       const FileName = options?.casheResponse.casheResponseFileName;
+
+      // fixes the local hrefs in the html
+      response.data = fixLocalLinksInCashedSource(
+        response.data,
+        url
+      );
+
       if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory);
       }
