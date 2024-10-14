@@ -9,6 +9,7 @@ async function main() {
 
   runModule("test response getter", () =>
     responseHandler.connectToUrl(testUrl, {
+      fixLocalLinks: true,
       casheResponse: {
         casheresponseDirectory: "./cache",
         casheResponseFileName: "test",

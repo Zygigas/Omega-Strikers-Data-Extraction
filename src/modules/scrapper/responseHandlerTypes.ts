@@ -1,4 +1,5 @@
 export type connectOptions = {
+  fixLocalLinks?: boolean;
   casheResponse?: {
     casheresponseDirectory: string;
     casheResponseFileName: string;

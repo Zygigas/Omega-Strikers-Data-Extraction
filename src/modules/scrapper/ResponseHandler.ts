@@ -35,16 +35,12 @@ export class ResponseHandler {
         throw error;
       }
     }
-
+    if (options?.fixLocalLinks) {
+      response.data = fixLocalLinksInCashedSource(response.data, url);
+    }
     if (options?.casheResponse) {
       const directory = options?.casheResponse.casheresponseDirectory;
       const FileName = options?.casheResponse.casheResponseFileName;
-
-      // fixes the local hrefs in the html
-      response.data = fixLocalLinksInCashedSource(
-        response.data,
-        url
-      );
 
       if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory);
