@@ -1,10 +1,11 @@
+import { QueueManager } from "./modules/concurentWorkersManager";
 import { ResponseHandler } from "./modules/scrapper";
 
 const testUrl = "https://stats.omegastrikers.gg/leaderboards";
 
 main();
 
-async function main() {
+function main() {
   const responseHandler = new ResponseHandler();
 
   runModule("test response getter", () =>
@@ -16,6 +17,21 @@ async function main() {
       },
     })
   );
+
+  const queueSystem = new QueueManager(5);
+
+  let test = async () => {
+    for (let index = 0; index < 100; index++) {
+      queueSystem.addToQueue(() => queueSystem.test())
+    }
+    runModule("test que system", () => queueSystem.runQueue());
+  };
+  test();
+
+  
+
+  
+
 }
 
 /**
