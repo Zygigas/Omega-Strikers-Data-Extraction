@@ -9,7 +9,6 @@ export class QueueManager {
     this.maxWorkers = maxWorkers;
   }
 
-
   setMaxWorkers(maxWorkers: number) {
     this.maxWorkers = maxWorkers;
     return;
@@ -23,12 +22,6 @@ export class QueueManager {
       this.queue.push(func);
       return;
     }
-  }
-
-  async test() {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log("test");
-    return "test";
   }
 
   async runQueue() {
@@ -47,7 +40,7 @@ export class QueueManager {
           "added worker, current worker count: " + this.workers.length
         );
         console.log(this.workers);
-         newWorker.promise.finally(() => {
+        newWorker.promise.finally(() => {
           this.results.push(newWorker.promise);
           this.workers.splice(this.workers.indexOf(newWorker), 1);
         });
