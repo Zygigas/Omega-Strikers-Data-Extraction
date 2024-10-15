@@ -12,10 +12,17 @@ export class QueueManager {
 
   setMaxWorkers(maxWorkers: number) {
     this.maxWorkers = maxWorkers;
+    return;
   }
 
-  addToQueue(func: () => Promise<any>) {
-    this.queue.push(func);
+  addToQueue(func: Array<() => Promise<any>> | (() => Promise<any>)) {
+    if (Array.isArray(func)) {
+      func.forEach((f) => this.queue.push(f));
+      return;
+    } else {
+      this.queue.push(func);
+      return;
+    }
   }
 
   async test() {
@@ -48,7 +55,8 @@ export class QueueManager {
         await Promise.race(this.workers.map((worker) => worker.promise));
       }
     }
+    await Promise.all(this.workers.map((worker) => worker.promise));
     console.log("finished running queue");
-    console.log(this.results);
+    return this.results;
   }
 }
