@@ -1,7 +1,7 @@
 import { QueueManager } from "./modules/concurentWorkersManager";
 import { ResponseHandler } from "./modules/scrapper";
 
-const testUrl = "https://stats.omegastrikers.gg/leaderboards";
+const mainUrl = "https://stats.omegastrikers.gg/leaderboards?page=";
 
 main();
 
@@ -9,7 +9,7 @@ function main() {
   const responseHandler = new ResponseHandler();
 
   runModule("test response getter", () =>
-    responseHandler.connectToUrl(testUrl, {
+    responseHandler.connectToUrl(mainUrl, {
       fixLocalLinks: true,
       casheResponse: {
         casheresponseDirectory: "./cache",
@@ -17,12 +17,17 @@ function main() {
       },
     })
   );
-
-  const queueSystem = new QueueManager(5);
+  const queueSystem = new QueueManager(10);
 
   let test = async () => {
-    for (let index = 0; index < 100; index++) {
-      queueSystem.addToQueue(() => queueSystem.test())
+    for (let index = 0; index < 400; index++) {
+      queueSystem.addToQueue(() => responseHandler.connectToUrl(mainUrl + (index+1).toString(), {
+        fixLocalLinks: true,
+        casheResponse: {
+          casheresponseDirectory: "./cache",
+          casheResponseFileName: "leaderboard_" + (index+1).toString(),
+        },
+      }));
     }
     runModule("test que system", () => queueSystem.runQueue());
   };
