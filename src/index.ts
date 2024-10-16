@@ -1,5 +1,5 @@
 import { QueueManager } from "./modules/concurentWorkersManager/";
-import { ResponseHandler } from "./modules/scrapper";
+import { ResponseHandler } from "./modules/webResponse";
 import { runModule } from "./modules/runTimeHelpers/runModule";
 import { queueUpLeaderboardPages } from "./modules/omegaStrikersLeaderboardInteractor";
 

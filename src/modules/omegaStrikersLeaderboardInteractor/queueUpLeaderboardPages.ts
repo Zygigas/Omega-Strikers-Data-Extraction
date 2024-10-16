@@ -1,5 +1,5 @@
 import { QueueManager } from "../concurentWorkersManager";
-import { ResponseHandler } from "../scrapper";
+import { ResponseHandler } from "../webResponse";
 
 import {
   MAINURL,
