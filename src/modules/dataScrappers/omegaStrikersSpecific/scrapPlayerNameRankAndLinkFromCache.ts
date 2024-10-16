@@ -1,4 +1,4 @@
-import { getAllCachePaths, loadHTMLFromCache } from "../../fileReaders";
+import { getAllCachePaths, loadHTMLFromCache } from "../../fileHelpers/fileReaders";
 import { scrapPlayerNameAndRank } from "./scrapPlayerNameRankAndLink";
 
 export function scrapPlayerNameRankAndLinkFromCache(path: string): { rank: number; name: string; link: string }[] {
