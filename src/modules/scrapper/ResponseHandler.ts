@@ -3,6 +3,8 @@ import { connectOptions } from ".";
 import fs from "fs";
 import { fixLocalLinksInCashedSource } from "../fileFormating";
 
+import logger from "../logger/mainLogger";
+
 export class ResponseHandler {
   /**
    * Connects to a given URL using axios and returns the response
@@ -19,14 +21,13 @@ export class ResponseHandler {
     } catch (error) {
       if (error instanceof AxiosError) {
         if (options?.retry) {
-          console.log(
-            `Failed to connect to the website due to a ${error.response?.status} error. Retrying...`
+          logger.error(
+            `Failed to connect to the website due to a ${error.response?.status} error. Retrying...\nRetries left: ${options.retry}`
           );
-          console.log(`Retries left: ${options.retry}`);
           options.retry -= 1;
           return this.connectToUrl(url, options);
         } else {
-          console.log(
+          logger.error(
             `Failed to connect to the website due to a ${error.response?.status} error. skipping...`
           );
           return;

@@ -2,6 +2,8 @@ import { QueueManager } from "./modules/concurentWorkersManager/";
 
 import { ResponseHandler } from "./modules/scrapper";
 
+import logger from "./modules/logger/mainLogger";
+
 const mainUrl = "https://stats.omegastrikers.gg/leaderboards?page=";
 
 main();
@@ -54,8 +56,5 @@ async function runModule(
   const startTime = new Date();
   const result = await func();
   const endTime = new Date();
-  console.log(`${name} completed successfully`);
-  console.log(
-    `Run time: ${(endTime.getTime() - startTime.getTime()) / 1000} seconds`
-  );
+  logger.info(`${name} completed successfully\nRun time: ${(endTime.getTime() - startTime.getTime()) / 1000} seconds`);
 }
