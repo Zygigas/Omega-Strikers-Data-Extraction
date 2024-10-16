@@ -1,14 +1,15 @@
-import { QueueManager } from "./modules/concurentWorkersManager";
+import { QueueManager } from "./modules/concurentWorkersManager/";
+
 import { ResponseHandler } from "./modules/scrapper";
 
 const mainUrl = "https://stats.omegastrikers.gg/leaderboards?page=";
 
 main();
 
-function main() {
+async function main() {
   const responseHandler = new ResponseHandler();
 
-  runModule("test response getter", () =>
+  await runModule("test response getter", () =>
     responseHandler.connectToUrl(mainUrl, {
       fixLocalLinks: true,
       casheResponse: {
@@ -17,26 +18,27 @@ function main() {
       },
     })
   );
+
   const queueSystem = new QueueManager(10);
 
-  let test = async () => {
-    for (let index = 0; index < 400; index++) {
-      queueSystem.addToQueue(() => responseHandler.connectToUrl(mainUrl + (index+1).toString(), {
-        fixLocalLinks: true,
-        casheResponse: {
-          casheresponseDirectory: "./cache",
-          casheResponseFileName: "leaderboard_" + (index+1).toString(),
-        },
-      }));
+  let testQueSystem = async () => {
+    for (let index = 0; index < 100; index++) {
+      queueSystem.addToQueue(() =>
+        responseHandler.connectToUrl(mainUrl + (index + 1).toString(), {
+          fixLocalLinks: true,
+          retry: 100,
+          timeout: 10000,
+          casheResponse: {
+            casheresponseDirectory: "./cache",
+            casheResponseFileName: "leaderboard_" + (index + 1).toString(),
+          },
+        })
+      );
     }
-    runModule("test que system", () => queueSystem.runQueue());
+    runModule("test queue system", () => queueSystem.runQueue());
   };
-  test();
 
-  
-
-  
-
+  await testQueSystem();
 }
 
 /**
