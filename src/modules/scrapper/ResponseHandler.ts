@@ -43,9 +43,14 @@ export class ResponseHandler {
       const directory = options?.cacheResponse.cacheresponseDirectory;
       const FileName = options?.cacheResponse.cacheResponseFileName;
 
-      if (!fs.existsSync(directory)) {
-        fs.mkdirSync(directory);
+      function makeSureWholePathExists(path: string) {
+        if (!fs.existsSync(path)) {
+          makeSureWholePathExists(path.substring(0, path.lastIndexOf("/")));
+          fs.mkdirSync(path);
+        }
       }
+
+      makeSureWholePathExists(directory);
       fs.writeFileSync(`${directory}/${FileName}.html`, response.data);
     }
     return response;
