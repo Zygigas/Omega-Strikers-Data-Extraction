@@ -1,55 +1,85 @@
+import logger from "../logger/mainLogger";
+
 export class QueueManager {
-  private queue: Array<() => Promise<any>> = [];
-  private maxWorkers: number = 1;
-  private idIndex = 0;
-  private workers: Array<{ promise: Promise<any>; id: number }> = [];
-  private results: Array<any> = [];
+  private _queue: Array<Promise<any>> = [];
+  private _idIndex = 0;
+  private _workers: Array<{ promise: Promise<any>; id: number }> = [];
 
-  constructor(maxWorkers: number) {
-    this.maxWorkers = maxWorkers;
+  private _queueOptions = {
+    concurrency: 1,
+    saveResultsArray: true,
+  };
+
+  private _results: Array<String> = [];
+
+  constructor(maxWorkers: number, saveResultsArray?: boolean) {
+    this._queueOptions.concurrency = maxWorkers;
   }
 
-  setMaxWorkers(maxWorkers: number) {
-    this.maxWorkers = maxWorkers;
-    return;
+  public set maxWorkers(maxWorkers: number) {
+    this._queueOptions.concurrency = maxWorkers;
+  }
+  public get maxWorkers(): number {
+    return this._queueOptions.concurrency;
   }
 
-  addToQueue(func: Array<() => Promise<any>> | (() => Promise<any>)) {
-    if (Array.isArray(func)) {
-      func.forEach((f) => this.queue.push(f));
-      return;
+  public addToQueue(
+    functionOrPromise:
+      | Array<Promise<any>>
+      | Promise<any>
+      | (() => any)
+      | Array<() => any>
+  ) {
+    if (Array.isArray(functionOrPromise)) {
+      this._queue.push(
+        ...functionOrPromise.map((f) =>
+          typeof f === "function" ? Promise.resolve(f()) : Promise.resolve(f)
+        )
+      );
     } else {
-      this.queue.push(func);
-      return;
+      this._queue.push(
+        typeof functionOrPromise === "function"
+          ? Promise.resolve(functionOrPromise())
+          : Promise.resolve(functionOrPromise)
+      );
     }
   }
 
-  async runQueue() {
-    console.log("running queue");
-    while (this.queue.length > 0) {
-      if (this.workers.length < this.maxWorkers) {
-        console.log(
-          "adding worker, current worker count: " + this.workers.length
+  public async runQueue() {
+    logger.info("running queue");
+
+    while (this._queue.length > 0) {
+      if (this._workers.length < this._queueOptions.concurrency) {
+        logger.info(
+          "adding worker, current worker count: " + this._workers.length
         );
         const newWorker = {
-          promise: this.queue.shift()!(),
-          id: this.idIndex++,
+          promise: this._queue.shift()!,
+          id: this._idIndex++,
         };
-        this.workers.push(newWorker);
-        console.log(
-          "added worker, current worker count: " + this.workers.length
+        this._workers.push(newWorker);
+        logger.info(
+          "added worker, current worker count: " +
+            this._workers.length +
+            "\n" +
+            "que items left: " +
+            this._queue.length
         );
-        console.log(this.workers);
         newWorker.promise.finally(() => {
-          this.results.push(newWorker.promise);
-          this.workers.splice(this.workers.indexOf(newWorker), 1);
+          const indexToRemove = this._workers.findIndex(
+            (worker) => worker.id === newWorker.id
+          );
+          if (indexToRemove !== -1) {
+            this._workers.splice(indexToRemove, 1);
+          }
+          return newWorker.promise;
         });
       } else {
-        await Promise.race(this.workers.map((worker) => worker.promise));
+        await Promise.race(this._workers.map((worker) => worker.promise));
       }
     }
-    await Promise.all(this.workers.map((worker) => worker.promise));
-    console.log("finished running queue");
-    return this.results;
+    await Promise.all(this._workers.map((worker) => worker.promise));
+    logger.info("all workers done");
+    return this._results;
   }
 }
