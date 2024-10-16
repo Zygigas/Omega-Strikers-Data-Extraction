@@ -7,6 +7,7 @@ import {
   LEADERBOARD_PAGES,
   RETRY_COUNT,
   TIMEOUT,
+  CACHE_SUBFOLDERS
 } from "../../../configs/config.json";
 
 export async function queueUpLeaderboardPages(
@@ -16,15 +17,19 @@ export async function queueUpLeaderboardPages(
   let leaderboardTempQueue = [];
   for (let index = 0; index < LEADERBOARD_PAGES; index++) {
     leaderboardTempQueue.push(() =>
-      responseHandler.connectToUrl(MAINURL + (index + 1).toString(), {
-        fixLocalLinks: true,
-        retry: RETRY_COUNT,
-        timeout: TIMEOUT,
-        cacheResponse: {
-          cacheresponseDirectory: CACHE_DIRECTORY + "/leaderboardPages",
-          cacheResponseFileName: "leaderboard_#" + (index + 1).toString(),
-        },
-      })
+      responseHandler.connectToUrl(
+        `${MAINURL}${index + 1}`,
+        index,
+        {
+          retry: RETRY_COUNT,
+          timeout: TIMEOUT,
+          fixLocalLinks: true,
+          cacheResponse: {
+            cacheresponseDirectory: CACHE_DIRECTORY + "/" + CACHE_SUBFOLDERS.LEADERBOARDS,
+            cacheResponseFileName: `leaderboard_`,
+          }
+        }
+      )
     );
   }
   queueSystem.addToQueue(leaderboardTempQueue);

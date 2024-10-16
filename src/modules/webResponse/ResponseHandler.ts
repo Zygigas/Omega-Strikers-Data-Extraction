@@ -1,9 +1,9 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { connectOptions } from ".";
-import fs from "fs";
 import { fixLocalLinksInCashedSource } from "../fileFormating";
 
 import logger from "../logger/mainLogger";
+import { cacheDataToFiles } from "../fileHelpers/fileWriters/cacheDataToFiles";
 
 export class ResponseHandler {
   /**
@@ -13,11 +13,12 @@ export class ResponseHandler {
    */
   async connectToUrl(
     url: string,
+    fileIndex?: number,
     options?: connectOptions
-  ): Promise<AxiosResponse | undefined> {
-    let response: AxiosResponse;
+  ): Promise<string | undefined> {
+    let response: string;
     try {
-      response = await axios.get(url, { timeout: options?.timeout });
+      response = await axios.get<string>(url, { timeout: options?.timeout }).then(d => response = d.data);
     } catch (error) {
       if (error instanceof AxiosError) {
         if (options?.retry) {
@@ -25,7 +26,7 @@ export class ResponseHandler {
             `Failed to connect to the website due to a ${error.response?.status} error. Retrying...\nRetries left: ${options.retry}`
           );
           options.retry -= 1;
-          return this.connectToUrl(url, options);
+          return this.connectToUrl(url,fileIndex,options);
         } else {
           logger.error(
             `Failed to connect to the website due to a ${error.response?.status} error. skipping...`
@@ -37,22 +38,17 @@ export class ResponseHandler {
       }
     }
     if (options?.fixLocalLinks) {
-      response.data = fixLocalLinksInCashedSource(response.data, url);
+      response = fixLocalLinksInCashedSource(response, url);
     }
     if (options?.cacheResponse) {
-      const directory = options?.cacheResponse.cacheresponseDirectory;
-      const FileName = options?.cacheResponse.cacheResponseFileName;
-
-      function makeSureWholePathExists(path: string) {
-        if (!fs.existsSync(path)) {
-          makeSureWholePathExists(path.substring(0, path.lastIndexOf("/")));
-          fs.mkdirSync(path);
-        }
-      }
-
-      makeSureWholePathExists(directory);
-      fs.writeFileSync(`${directory}/${FileName}.html`, response.data);
+      cacheDataToFiles(
+        options.cacheResponse.cacheresponseDirectory,
+        options.cacheResponse.cacheResponseFileName,
+        fileIndex === undefined ? 0 : fileIndex,
+        response,
+        "html"
+      )
     }
-    return response;
+    return Promise.resolve(response);
   }
 }
