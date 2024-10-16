@@ -1,7 +1,7 @@
 import logger from "../logger/mainLogger";
 
 export class QueueManager {
-  private _queue: Array<Promise<any>> = [];
+  private _queue: Array<() => Promise<any>> = [];
   private _idIndex = 0;
   private _workers: Array<{ promise: Promise<any>; id: number }> = [];
 
@@ -24,24 +24,12 @@ export class QueueManager {
   }
 
   public addToQueue(
-    functionOrPromise:
-      | Array<Promise<any>>
-      | Promise<any>
-      | (() => any)
-      | Array<() => any>
+    functionOrPromise: (() => Promise<any>) | Array<() => Promise<any>>
   ) {
     if (Array.isArray(functionOrPromise)) {
-      this._queue.push(
-        ...functionOrPromise.map((f) =>
-          typeof f === "function" ? Promise.resolve(f()) : Promise.resolve(f)
-        )
-      );
+      this._queue.push(...functionOrPromise);
     } else {
-      this._queue.push(
-        typeof functionOrPromise === "function"
-          ? Promise.resolve(functionOrPromise())
-          : Promise.resolve(functionOrPromise)
-      );
+      this._queue.push(functionOrPromise);
     }
   }
 
@@ -54,7 +42,7 @@ export class QueueManager {
           "adding worker, current worker count: " + this._workers.length
         );
         const newWorker = {
-          promise: this._queue.shift()!,
+          promise: this._queue.shift()!(),
           id: this._idIndex++,
         };
         this._workers.push(newWorker);
