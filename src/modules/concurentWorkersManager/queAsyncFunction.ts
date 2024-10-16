@@ -14,6 +14,7 @@ export class QueueManager {
 
   constructor(maxWorkers: number, saveResultsArray?: boolean) {
     this._queueOptions.concurrency = maxWorkers;
+    this._queueOptions.saveResultsArray = saveResultsArray ?? true;
   }
 
   public set maxWorkers(maxWorkers: number) {
@@ -60,6 +61,9 @@ export class QueueManager {
           if (indexToRemove !== -1) {
             this._workers.splice(indexToRemove, 1);
           }
+          if (this._queueOptions.saveResultsArray) {
+            newWorker.promise.then((result) => this._results.push(result));
+          }
           return newWorker.promise;
         });
       } else {
@@ -68,6 +72,8 @@ export class QueueManager {
     }
     await Promise.all(this._workers.map((worker) => worker.promise));
     logger.info("all workers done");
-    return this._results;
+    if (this._queueOptions.saveResultsArray) {
+      return this._results;
+    }
   }
 }
