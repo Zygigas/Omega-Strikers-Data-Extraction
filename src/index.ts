@@ -10,10 +10,13 @@ import {
   scrapPlayerNameRankAndLinkFromCache,
 } from "./modules/dataScrappers";
 
-import { queueUpLeaderboardPages } from "./modules/omegaStrikersLeaderboardInteractor";
+import { CACHE_DIRECTORY, CACHE_SUBFOLDERS } from "../configs/config.json";
 
-//main();
-testMain();
+import { queueUpLeaderboardPages } from "./modules/omegaStrikersLeaderboardInteractor";
+import { cacheDataToFiles } from "./modules/fileHelpers/fileWriters";
+
+main();
+//testMain();
 
 async function main() {
   const responseHandler = new ResponseHandler();
@@ -22,6 +25,21 @@ async function main() {
   await runModule("queue up all leaderboard pages", async () => {
     await queueUpLeaderboardPages(queueSystem, responseHandler);
     await queueSystem.runQueue();
+  });
+
+  await runModule("scrap player names and ranks", async () => {
+    const players = await scrapPlayerNameRankAndLinkFromCache(
+      CACHE_DIRECTORY + "/" + CACHE_SUBFOLDERS.LEADERBOARDS
+    );
+    players.forEach((element) => {
+      cacheDataToFiles(
+        CACHE_DIRECTORY + "/" + CACHE_SUBFOLDERS.PLAYERS_DATA,
+        "player_",
+        element.rank,
+        element,
+        "json"
+      );
+    });
   });
 }
 
