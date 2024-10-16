@@ -1,6 +1,11 @@
 {
   "MAINURL": "https://stats.omegastrikers.gg/leaderboards?page=",
   "CACHE_DIRECTORY": "./cache",
+  "CACHE_SUBFOLDERS": {
+    "LEADERBOARDS": "leaderboards",
+    "PLAYERS_DATA": "players_Data",
+    "PLAYERS_PAGES": "players_pages"
+  },
   "LEADERBOARD_PAGES": 400,
 
   "RETRY_COUNT": 100,
