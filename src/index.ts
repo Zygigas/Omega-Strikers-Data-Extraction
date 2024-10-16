@@ -9,7 +9,7 @@ main();
 
 async function main() {
   const responseHandler = new ResponseHandler();
-  const queueSystem = new QueueManager(MAX_CONCURRENT_WORKERS);
+  const queueSystem = new QueueManager(MAX_CONCURRENT_WORKERS, false);
 
   await runModule("queue up all leaderboard pages", async () => {
     await queueUpLeaderboardPages(queueSystem, responseHandler);
