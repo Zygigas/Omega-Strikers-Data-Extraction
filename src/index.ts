@@ -12,25 +12,25 @@ async function main() {
   await runModule("test response getter", () =>
     responseHandler.connectToUrl(mainUrl, {
       fixLocalLinks: true,
-      casheResponse: {
-        casheresponseDirectory: "./cache",
-        casheResponseFileName: "test",
+      cacheResponse: {
+        cacheresponseDirectory: "./cache",
+        cacheResponseFileName: "test",
       },
     })
   );
 
   const queueSystem = new QueueManager(10);
 
-  let testQueSystem = async () => {
+  let testQueueSystem = async () => {
     for (let index = 0; index < 100; index++) {
       queueSystem.addToQueue(() =>
         responseHandler.connectToUrl(mainUrl + (index + 1).toString(), {
           fixLocalLinks: true,
           retry: 100,
           timeout: 10000,
-          casheResponse: {
-            casheresponseDirectory: "./cache",
-            casheResponseFileName: "leaderboard_" + (index + 1).toString(),
+          cacheResponse: {
+            cacheresponseDirectory: "./cache",
+            cacheResponseFileName: "leaderboard_" + (index + 1).toString(),
           },
         })
       );
@@ -38,7 +38,7 @@ async function main() {
     runModule("test queue system", () => queueSystem.runQueue());
   };
 
-  await testQueSystem();
+  await testQueueSystem();
 }
 
 /**

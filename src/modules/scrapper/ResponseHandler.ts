@@ -38,9 +38,9 @@ export class ResponseHandler {
     if (options?.fixLocalLinks) {
       response.data = fixLocalLinksInCashedSource(response.data, url);
     }
-    if (options?.casheResponse) {
-      const directory = options?.casheResponse.casheresponseDirectory;
-      const FileName = options?.casheResponse.casheResponseFileName;
+    if (options?.cacheResponse) {
+      const directory = options?.cacheResponse.cacheresponseDirectory;
+      const FileName = options?.cacheResponse.cacheResponseFileName;
 
       if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory);

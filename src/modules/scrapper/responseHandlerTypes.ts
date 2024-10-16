@@ -1,8 +1,8 @@
 export type connectOptions = {
   fixLocalLinks?: boolean;
-  casheResponse?: {
-    casheresponseDirectory: string;
-    casheResponseFileName: string;
+  cacheResponse?: {
+    cacheresponseDirectory: string;
+    cacheResponseFileName: string;
   };
   retry?: number;
   timeout?: number;
