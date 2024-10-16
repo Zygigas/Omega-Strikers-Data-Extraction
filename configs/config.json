@@ -1,0 +1,10 @@
+{
+  "MAINURL": "https://stats.omegastrikers.gg/leaderboards?page=",
+  "CACHE_DIRECTORY": "./cache",
+  "LEADERBOARD_PAGES": 400,
+
+  "RETRY_COUNT": 100,
+  "TIMEOUT": 10000,
+
+  "MAX_CONCURRENT_WORKERS": 10
+}
