@@ -15,6 +15,10 @@ import { CACHE_DIRECTORY, CACHE_SUBFOLDERS } from "../configs/config.json";
 import { queueUpLeaderboardPages } from "./modules/omegaStrikersLeaderboardInteractor";
 import { cacheDataToFiles } from "./modules/fileHelpers/fileWriters";
 
+import fs from "fs";
+
+import { RETRY_COUNT, TIMEOUT } from "../configs/config.json";
+
 main();
 //testMain();
 
@@ -41,7 +45,31 @@ async function main() {
       );
     });
   });
-}
+
+  await runModule("Scrap Player Pages", async () => {
+    let playerLinks = fs.readdirSync(
+      CACHE_DIRECTORY + "/" + CACHE_SUBFOLDERS.PLAYERS_DATA
+    );
+    playerLinks = playerLinks.map((element) => {
+      return JSON.parse(fs.readFileSync(CACHE_DIRECTORY + "/" + CACHE_SUBFOLDERS.PLAYERS_DATA + "/" + element, "utf-8")).link;
+    });
+    for (let i = 1; i < playerLinks.length+1; i++) {
+      await queueSystem.addToQueue(async () => {
+        await responseHandler.connectToUrl(playerLinks[i - 1], i, {
+          retry: RETRY_COUNT,
+          timeout: TIMEOUT,
+          fixLocalLinks: true,
+          cacheResponse: {
+            cacheresponseDirectory:
+              CACHE_DIRECTORY + "/" + CACHE_SUBFOLDERS.PLAYERS_PAGES,
+            cacheResponseFileName: `player_`,
+          },
+        });
+      })
+    }
+    await queueSystem.runQueue();
+    });
+  };
 
 async function testMain() {
   await runModule("testScrapping player names and ranks", async () => {
